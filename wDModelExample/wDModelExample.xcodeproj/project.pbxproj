@@ -16,6 +16,7 @@
 		A66E74011C0A85150099BB25 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A66E73FF1C0A85150099BB25 /* LaunchScreen.storyboard */; };
 		A688C2D01C0A8B0B003C9C19 /* WDBaseModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A688C2CF1C0A8B0B003C9C19 /* WDBaseModel.m */; };
 		A688C2D31C0A8B3B003C9C19 /* WDDBService.m in Sources */ = {isa = PBXBuildFile; fileRef = A688C2D21C0A8B3B003C9C19 /* WDDBService.m */; };
+		A6D1A3B41C0C6C0100254B56 /* WDUser.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D1A3B31C0C6C0100254B56 /* WDUser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,8 @@
 		A688C2CF1C0A8B0B003C9C19 /* WDBaseModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDBaseModel.m; sourceTree = "<group>"; };
 		A688C2D11C0A8B3B003C9C19 /* WDDBService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDDBService.h; sourceTree = "<group>"; };
 		A688C2D21C0A8B3B003C9C19 /* WDDBService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDDBService.m; sourceTree = "<group>"; };
+		A6D1A3B21C0C6C0100254B56 /* WDUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDUser.h; sourceTree = "<group>"; };
+		A6D1A3B31C0C6C0100254B56 /* WDUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDUser.m; sourceTree = "<group>"; };
 		F0F19C1BB7AEEE9AA445E4D4 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -90,6 +93,8 @@
 				A66E73FF1C0A85150099BB25 /* LaunchScreen.storyboard */,
 				A66E74021C0A85150099BB25 /* Info.plist */,
 				A66E73F11C0A85150099BB25 /* Supporting Files */,
+				A6D1A3B21C0C6C0100254B56 /* WDUser.h */,
+				A6D1A3B31C0C6C0100254B56 /* WDUser.m */,
 			);
 			path = wDModelExample;
 			sourceTree = "<group>";
@@ -243,6 +248,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A688C2D31C0A8B3B003C9C19 /* WDDBService.m in Sources */,
+				A6D1A3B41C0C6C0100254B56 /* WDUser.m in Sources */,
 				A66E73F91C0A85150099BB25 /* ViewController.m in Sources */,
 				A66E73F61C0A85150099BB25 /* AppDelegate.m in Sources */,
 				A66E73F31C0A85150099BB25 /* main.m in Sources */,

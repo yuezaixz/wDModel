@@ -9,6 +9,10 @@
 #import "WDDBService.h"
 #import "FMDatabase.h"
 
+
+//Notice. 该封装表的创建以及升级都需要在 init upgrade 中实现
+
+
 @interface WDDBService()
 
 @end
@@ -41,9 +45,13 @@
     if(self){
         FMDatabase *db = [self getDB];
         
-        //TODO INIT
-        
+        NSString *userSQL = @"create table if not exists user (user_id integer not null primary key autoincrement,";
+        userSQL = [userSQL stringByAppendingString:@"name varchar(100),sex integer)"];
+        if([db open]){
+            [db executeUpdate:userSQL];
+        }
         [db close];
+        [self upgrade];
     }
     return self;
 }
@@ -55,24 +63,24 @@
         version = [[udf objectForKey:@"sportdatabaseversion"] integerValue];
     }
     //TODO UPDATE
-//    if (version < 8) {
-//        NSMutableArray *sqlArray = [NSMutableArray array];
-//        NSString *recordSql = @"alter table running change column weight double";
-//        
-//        [sqlArray addObject:recordSql];
-//        FMDatabase *db = [self getDB];
-//        if([db open]){
-//            [db beginTransaction];
-//            for(NSString *sql in sqlArray){
-//                [db executeUpdate:sql];
-//            }
-//            version = 8;
-//            [db commit];
-//            [db close];
-//        }else{
-//            [db close];
-//        }
-//    }
+    if (version < 1) {
+        NSMutableArray *sqlArray = [NSMutableArray array];
+        NSString *userEmailAddSql = @"alter table running add column email varchar(100)";
+        
+        [sqlArray addObject:userEmailAddSql];
+        FMDatabase *db = [self getDB];
+        if([db open]){
+            [db beginTransaction];
+            for(NSString *sql in sqlArray){
+                [db executeUpdate:sql];
+            }
+            version = 1;
+            [db commit];
+            [db close];
+        }else{
+            [db close];
+        }
+    }
     
     
     [udf setObject:@(version) forKey:@"sportdatabaseversion"];

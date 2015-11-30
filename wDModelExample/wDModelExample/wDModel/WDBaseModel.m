@@ -22,6 +22,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 }
 
 + (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField{
+  
     return @[];
 }
 
@@ -76,7 +77,10 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         if (selector && [self respondsToSelector:NSSelectorFromString(selector)])
         {
             NSObject *value = [(NSObject *)self valueForKey:selector];
-            [keyValueDict setObject:value forKey:key];
+            if (value) {
+                [keyValueDict setObject:value forKey:key];
+            }
+
         }
         
     }
@@ -107,16 +111,16 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         {
             NSObject *value = [(NSObject *)self valueForKey:selector];
             if (value != nil) {//value为空的情况下，就不做插入
-                [keySql appendFormat:@" %@ ",key];
-                [valueSql appendFormat:@" :%@ ",key];
-                if (i != 0) {
-                    [keySql appendString:@" , "];
-                    [valueSql appendString:@" , "];
-                } else {
-                    [keySql appendString:@" ) "];
-                    [valueSql appendString:@" ) "];
-                }
+                [keySql appendFormat:@" %@ ,",key];
+                [valueSql appendFormat:@" :%@ ,",key];
             }
+        }
+        
+        if (i == 0) {
+            [keySql deleteCharactersInRange:NSMakeRange([keySql length]-1, 1)];
+            [valueSql deleteCharactersInRange:NSMakeRange([valueSql length]-1, 1)];
+            [keySql appendString:@" ) "];
+            [valueSql appendString:@" ) "];
         }
     }
     [keySql appendString:valueSql];
@@ -147,7 +151,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     }
     NSString *sql = self.sqlForInsert;
     NSDictionary *keyValueDict = self.dictionaryForKeyValue;
-    [WDDBService executeUpdateSql:sql withArgs:keyValueDict];
+    [WDDBService executeUpdateSql:sql withArgs:keyValueDict];//TODO 更新当前userId
 }
 
 - (void)update{//验证id不能为空

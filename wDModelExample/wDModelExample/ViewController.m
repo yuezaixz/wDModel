@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "WDUser.h"
 
 @interface ViewController ()
 
@@ -16,7 +17,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    WDUser *user = [[WDUser alloc] init];
+    user.name = @"吴迪玮";
+    user.email = @"xiao303178394@gmail.com";
+    user.sex = @(UserSexMale);
+    [user save];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
