@@ -47,12 +47,11 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
             NSObject *value = [(NSObject *)self valueForKey:selector];
             if (value != nil) {//value为空的情况下，就不做插入
                 [sql appendFormat:@" %@=:%@ ",key,key];
-                if (i != 0) {
-                    [sql appendString:@", "];
-                }
+                [sql appendString:@","];
             }
         }
     }
+    [sql deleteCharactersInRange:NSMakeRange([sql length]-1, 1)];
     NSString *idField = [self fieldForId];
     [sql appendFormat:@" WHERE %@=:%@ ",idField,idField];
     

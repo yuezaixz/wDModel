@@ -65,7 +65,7 @@
     //TODO UPDATE
     if (version < 1) {
         NSMutableArray *sqlArray = [NSMutableArray array];
-        NSString *userEmailAddSql = @"alter table running add column email varchar(100)";
+        NSString *userEmailAddSql = @"alter table user add column email varchar(100)";
         
         [sqlArray addObject:userEmailAddSql];
         FMDatabase *db = [self getDB];
