@@ -12,4 +12,8 @@
 
 + (instancetype)sharedInstance;
 
++ (BOOL)executeUpdateSql:(NSString *)sql withArgs:(NSDictionary *)args;
++ (BOOL)executeUpdateSqlArray:(NSArray *)sqlArray;
++ (NSDictionary *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args;
+
 @end

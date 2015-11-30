@@ -54,7 +54,7 @@
     if([udf objectForKey:@"sportdatabaseversion"]){
         version = [[udf objectForKey:@"sportdatabaseversion"] integerValue];
     }
-    //TODO UPDATE    
+    //TODO UPDATE
 //    if (version < 8) {
 //        NSMutableArray *sqlArray = [NSMutableArray array];
 //        NSString *recordSql = @"alter table running change column weight double";
@@ -77,6 +77,78 @@
     
     [udf setObject:@(version) forKey:@"sportdatabaseversion"];
     [udf synchronize];
+}
+
++ (BOOL)executeUpdateSql:(NSString *)sql withArgs:(NSDictionary *)args{
+    return [[self sharedInstance] executeUpdateSql:sql withArgs:args];
+}
+
++ (BOOL)executeUpdateSqlArray:(NSArray *)sqlArray{
+    return [[self sharedInstance] executeUpdateSqlArray:sqlArray];
+}
+
++ (NSDictionary *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args{
+    return [[self sharedInstance] executeQuerySql:sql withArgs:args];
+}
+
+- (BOOL)executeUpdateSqlArray:(NSArray *)sqlArray{
+    FMDatabase *db = [self getDB];
+    if([db open]){
+        [db beginTransaction];
+        for (NSDictionary *sqlDict in sqlArray) {
+            if (![db executeUpdate:[sqlDict valueForKey:@"sql"] withParameterDictionary:[sqlDict valueForKey:@"args"]]) {
+                //TODO 暂时不考虑批量出错的错误处理
+                continue;
+            }
+        }
+        [db commit];
+        [db close];
+    }else{
+        [db close];
+    }
+    
+    return YES;
+}
+
+- (BOOL)executeUpdateSql:(NSString *)sql withArgs:(NSDictionary *)args{
+    BOOL result = YES;
+    FMDatabase *db = [self getDB];
+    if([db open]){
+        [db beginTransaction];
+        if (args) {
+            result = [db executeUpdate:sql withParameterDictionary:args];
+        } else {
+            result = [db executeUpdate:sql];
+        }
+        [db commit];
+        [db close];
+    }else{
+        [db close];
+    }
+    return result;
+}
+
+- (NSDictionary *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args{
+    FMDatabase *db = [self getDB];
+    NSMutableDictionary *result = [[NSMutableDictionary alloc] init];
+    if([db open]){
+        FMResultSet *resultSet = nil;
+        if (args) {
+            resultSet = [db executeQuery:sql withParameterDictionary:args];
+        } else {
+            resultSet = [db executeQuery:sql];
+        }
+        while ([resultSet next]) {
+            for (int i = 0; i < resultSet.columnCount ; i++) {
+                [result setObject:[resultSet objectForColumnIndex:i] forKey:[resultSet columnNameForIndex:i]];
+            }
+        }
+        
+        [db close];
+    }else{
+        [db close];
+    }
+    return result;
 }
 
 @end
