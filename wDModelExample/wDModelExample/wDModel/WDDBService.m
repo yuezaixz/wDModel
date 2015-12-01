@@ -55,15 +55,14 @@
     }
     return self;
 }
-
+//数据模型升级
 - (void)upgrade{
     NSUserDefaults *udf = [NSUserDefaults standardUserDefaults];
-    NSInteger version = 0;
+    NSInteger version = 0;//初始化版本号
     if([udf objectForKey:@"sportdatabaseversion"]){
         version = [[udf objectForKey:@"sportdatabaseversion"] integerValue];
     }
-    //TODO UPDATE
-    if (version < 1) {
+    if (version < 1) {//新的版本号
         NSMutableArray *sqlArray = [NSMutableArray array];
         NSString *userEmailAddSql = @"alter table user add column email varchar(100)";
         
@@ -74,7 +73,7 @@
             for(NSString *sql in sqlArray){
                 [db executeUpdate:sql];
             }
-            version = 1;
+            version = 1;//新的版本号
             [db commit];
             [db close];
         }else{
