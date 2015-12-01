@@ -16,7 +16,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 
 @implementation WDBaseModel
 
-
+//这两个方法主要用于内部，返回的类型会是WDBaseModel，所以需要类型强制转换
 + (instancetype)fetchOne:(NSDictionary *)kvDict{
     return [[self fetch:kvDict sortField:nil isAsc:YES] firstObject];
 }

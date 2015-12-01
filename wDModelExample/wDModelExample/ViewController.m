@@ -31,8 +31,10 @@
     NSLog(@"%@",models);
     
     
-//    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"email":@"450620338@qq.com"}];
-//    user2.email = @"1sakdfj@efjkf.com";
+//    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"email":@"1sakdfj@efjkf.com"}];
+//    user2.email = @"aaaaa.com";
+//    user2.weight = @(55.5);
+//    user2.parent = [NSKeyedArchiver archivedDataWithRootObject:@[@{@"father":@"A",@"age":@58},@{@"mother":@"B",@"age":@52}]];
 //    [user2 update];
 }
 

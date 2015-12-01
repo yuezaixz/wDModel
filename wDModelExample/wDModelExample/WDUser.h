@@ -16,9 +16,11 @@ typedef NS_ENUM(NSInteger, UserSex) {
 
 @interface WDUser : WDBaseModel
 
-@property (nonatomic,strong) NSNumber *userId; 
+@property (nonatomic,strong) NSNumber *userId;
 @property (nonatomic, copy) NSString * name;
 @property (nonatomic, strong) NSNumber * sex;        //1：男 2：女
 @property (nonatomic, copy) NSString * email;
+@property (nonatomic,strong) NSNumber *weight;
+@property (nonatomic,strong) NSData *parent;
 
 @end

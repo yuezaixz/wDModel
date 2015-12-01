@@ -80,6 +80,26 @@
             [db close];
         }
     }
+    if (version < 2) {//新的版本号
+        NSMutableArray *sqlArray = [NSMutableArray array];
+        NSString *userWeightAddSql = @"alter table user add column weight double";
+        NSString *userParentAddSql = @"alter table user add column parent blob";
+        
+        [sqlArray addObject:userWeightAddSql];
+        [sqlArray addObject:userParentAddSql];
+        FMDatabase *db = [self getDB];
+        if([db open]){
+            [db beginTransaction];
+            for(NSString *sql in sqlArray){
+                [db executeUpdate:sql];
+            }
+            version = 2;//新的版本号
+            [db commit];
+            [db close];
+        }else{
+            [db close];
+        }
+    }
     
     
     [udf setObject:@(version) forKey:@"sportdatabaseversion"];
