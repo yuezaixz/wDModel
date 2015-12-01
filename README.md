@@ -129,5 +129,6 @@ WDUser *user = [[WDUser alloc] init];
 * runtime 实现 updateXxx 方法，只对相应的属性进行update
 * NSData 对应 blob类型的数据测试
 * lazy功能实现
+* 已经fetch后的数据，其他地方对数据进行了update，那么是否能同步修改所有的？有一个总的管理器，管理所有创建的Model？内存开销？
 
 
