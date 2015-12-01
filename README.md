@@ -124,8 +124,6 @@ WDUser *user = [[WDUser alloc] init];
 
 ##TODO LIST
 
-* fetch one方法
-* update方法测试
 * runtime 实现 updateXxx 方法，只对相应的属性进行update
 * NSData 对应 blob类型的数据测试
 * lazy功能实现

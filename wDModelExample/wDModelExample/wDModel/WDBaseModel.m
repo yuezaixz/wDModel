@@ -17,8 +17,8 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 @implementation WDBaseModel
 
 
-+ (WDBaseModel *)fetchOne:(NSDictionary *)kvDict{
-    return [[self alloc] init];
++ (instancetype)fetchOne:(NSDictionary *)kvDict{
+    return [[self fetch:kvDict sortField:nil isAsc:YES] firstObject];
 }
 
 + (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField isAsc:(BOOL)isAsc{

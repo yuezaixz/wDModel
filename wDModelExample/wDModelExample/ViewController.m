@@ -26,9 +26,14 @@
 //    [user save];
     
     //fetch
-//    NSArray *models = [WDUser fetch:@{@"email":@"xiao303178394@gmail.com"} sortField:nil isAsc:YES];
+//    NSArray *models = [WDUser fetch:@{@"email":@"450620338@qq.com"} sortField:nil isAsc:YES];
     NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
     NSLog(@"%@",models);
+    
+    
+//    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"email":@"450620338@qq.com"}];
+//    user2.email = @"1sakdfj@efjkf.com";
+//    [user2 update];
 }
 
 - (void)didReceiveMemoryWarning {
