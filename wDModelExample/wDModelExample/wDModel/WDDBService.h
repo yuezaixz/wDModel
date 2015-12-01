@@ -15,5 +15,6 @@
 + (BOOL)executeUpdateSql:(NSString *)sql withArgs:(NSDictionary *)args;
 + (BOOL)executeUpdateSqlArray:(NSArray *)sqlArray;
 + (NSDictionary *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args;
++ (NSArray *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args propSetBlock:(NSObject* (^)(NSDictionary *))propSetBlock;
 
 @end

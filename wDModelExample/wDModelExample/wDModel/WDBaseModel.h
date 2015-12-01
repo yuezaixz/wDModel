@@ -12,7 +12,7 @@
 
 + (WDBaseModel *)fetchOne:(NSDictionary *)kvDict;
 
-+ (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField;
++ (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField isAsc:(BOOL)isAsc;
 
 - (NSString *)sqlForUpdate;
 

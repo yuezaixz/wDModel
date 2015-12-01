@@ -17,13 +17,18 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    WDUser *user = [[WDUser alloc] init];
-    user.name = @"吴迪玮";
-    user.email = @"xiao303178394@gmail.com";
-    user.sex = @(UserSexMale);
-    [user save];
     
+    //SAVE
+//    WDUser *user = [[WDUser alloc] init];
+//    user.name = @"汤莹";
+//    user.email = @"450620338@qq.com";
+//    user.sex = @(UserSexFemale);
+//    [user save];
     
+    //fetch
+//    NSArray *models = [WDUser fetch:@{@"email":@"xiao303178394@gmail.com"} sortField:nil isAsc:YES];
+    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+    NSLog(@"%@",models);
 }
 
 - (void)didReceiveMemoryWarning {

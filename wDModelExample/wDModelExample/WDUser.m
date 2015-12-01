@@ -29,4 +29,8 @@
     return @"user_id";
 }
 
+-(NSString *)description{
+    return [NSString stringWithFormat:@"%@:%@:%@:%@",self.userId,self.name,self.email,self.sex];
+}
+
 @end

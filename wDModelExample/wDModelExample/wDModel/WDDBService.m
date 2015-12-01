@@ -99,6 +99,10 @@
     return [[self sharedInstance] executeQuerySql:sql withArgs:args];
 }
 
++ (NSArray *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args propSetBlock:(NSObject* (^)(NSDictionary *))propSetBlock{
+    return [[self sharedInstance] executeQuerySql:sql withArgs:args propSetBlock:propSetBlock];
+}
+
 - (BOOL)executeUpdateSqlArray:(NSArray *)sqlArray{
     FMDatabase *db = [self getDB];
     if([db open]){
@@ -150,6 +154,29 @@
             for (int i = 0; i < resultSet.columnCount ; i++) {
                 [result setObject:[resultSet objectForColumnIndex:i] forKey:[resultSet columnNameForIndex:i]];
             }
+        }
+        
+        [db close];
+    }else{
+        [db close];
+    }
+    return result;
+}
+
+
+
+- (NSArray *)executeQuerySql:(NSString *)sql withArgs:(NSDictionary *)args propSetBlock:(NSObject* (^)(NSDictionary *))propSetBlock{
+    FMDatabase *db = [self getDB];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    if([db open]){
+        FMResultSet *resultSet = nil;
+        if (args) {
+            resultSet = [db executeQuery:sql withParameterDictionary:args];
+        } else {
+            resultSet = [db executeQuery:sql];
+        }
+        while ([resultSet next]) {
+            [result addObject:propSetBlock([resultSet resultDictionary])];
         }
         
         [db close];

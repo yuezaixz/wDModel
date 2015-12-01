@@ -21,9 +21,36 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     return [[self alloc] init];
 }
 
-+ (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField{
-  
-    return @[];
++ (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField isAsc:(BOOL)isAsc{
+    NSMutableString *sql = [NSMutableString string];
+    [sql appendFormat:@"SELECT * FROM %@ ",[[self alloc] tableName]];
+    if (kvDict) {
+        [sql appendString:@" WHERE "];
+        for (NSString *key in [kvDict allKeys]) {
+            [sql appendFormat:@" %@=:%@,",key,key];
+        }
+    }
+    [sql deleteCharactersInRange:NSMakeRange([sql length]-1, 1)];
+    if (sortField) {
+        [sql appendFormat:@" ORDER BY %@ ",sortField];
+        [sql appendString:isAsc?@"ASC":@"DESC"];
+    }
+    __weak WDBaseModel *weakSelf = (WDBaseModel *)self;
+    return [WDDBService executeQuerySql:sql withArgs:kvDict propSetBlock:^NSObject *(NSDictionary *fieldValueDict){
+        
+        Class c = [weakSelf class];
+        WDBaseModel *modle = [[c alloc] init];
+        NSArray *fields = [modle fields];
+        NSMutableDictionary *porpValueDict = [[NSMutableDictionary alloc] init];
+        for (NSDictionary *field in fields) {
+            NSObject *value = [fieldValueDict objectForKey:field[WDBaseFieldKey]];
+            if (value) {
+                [porpValueDict setObject:value forKey:field[WDBaseFieldProperty]];
+            }
+        }
+        [modle assginToPropertyWithDictionary:porpValueDict];
+        return modle;
+    }];
 }
 
 - (NSString *)sqlForUpdate{
@@ -177,6 +204,54 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         return NO;
     }
     return YES;
+}
+
+// 通过字符串来创建该字符串的Setter方法，并返回
+- (SEL) creatSetterWithPropertyName: (NSString *) propertyName{
+    NSMutableString *result = [[NSMutableString alloc] init];
+    [result appendString:[[propertyName substringToIndex:1] uppercaseString]];
+    [result appendString:[propertyName substringFromIndex:1]];
+    
+    //2.拼接上set关键字
+    propertyName = [NSString stringWithFormat:@"set%@:", result];
+    
+    //3.返回set方法
+    return NSSelectorFromString(propertyName);
+}
+
+/************************************************************************
+ *把字典赋值给当前实体类的属性
+ *参数：字典
+ *适用情况：当网络请求的数据的key与实体类的属性相同时可以通过此方法吧字典的Value
+ *        赋值给实体类的属性
+ ************************************************************************/
+
+-(void)assginToPropertyWithDictionary: (NSDictionary *) data{
+    
+    if (data == nil) {
+        return;
+    }
+    
+    ///1.获取字典的key
+    NSArray *dicKey = [data allKeys];
+    
+    ///2.循环遍历字典key, 并且动态生成实体类的setter方法，把字典的Value通过setter方法
+    ///赋值给实体类的属性
+    for (int i = 0; i < dicKey.count; i ++) {
+        
+        ///2.1 通过getSetterSelWithAttibuteName 方法来获取实体类的set方法
+        SEL setSel = [self creatSetterWithPropertyName:dicKey[i]];
+        
+        if ([self respondsToSelector:setSel]) {
+            ///2.2 获取字典中key对应的value
+            NSString  *value = [NSString stringWithFormat:@"%@", data[dicKey[i]]];
+            
+            ///2.3 把值通过setter方法赋值给实体类的属性
+            [self performSelectorOnMainThread:setSel
+                                   withObject:value
+                                waitUntilDone:[NSThread isMainThread]];
+        }
+    }
 }
 
 @end
