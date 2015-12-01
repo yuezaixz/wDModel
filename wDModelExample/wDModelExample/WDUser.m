@@ -27,8 +27,8 @@
              @{@"field":@"parent",@"prop":@"parent"},];
 }
 
-- (NSString *)fieldForId{
-    return @"user_id";
+- (NSDictionary *)fieldForId{
+    return @{@"field":@"user_id",@"prop":@"userId"};
 }
 
 -(NSString *)description{

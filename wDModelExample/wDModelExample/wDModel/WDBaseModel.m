@@ -8,6 +8,7 @@
 
 #import "WDBaseModel.h"
 #import "WDDBService.h"
+#import <objc/runtime.h>
 
 NSString *const WDBaseFieldKey = @"field";
 NSString *const WDBaseFieldProperty = @"prop";
@@ -79,7 +80,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         }
     }
     [sql deleteCharactersInRange:NSMakeRange([sql length]-1, 1)];
-    NSString *idField = [self fieldForId];
+    NSString *idField = [self fieldForId][WDBaseFieldKey];
     [sql appendFormat:@" WHERE %@=:%@ ",idField,idField];
     
     return sql;
@@ -157,7 +158,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     return nil;
 }
 
-- (NSString *)fieldForId{
+- (NSDictionary *)fieldForId{
     return nil;
 }
 
@@ -189,7 +190,65 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     [WDDBService executeUpdateSql:sql withArgs:keyValueDict];
 }
 
+#pragma mark - runtime
+
++(BOOL)resolveInstanceMethod:(SEL)sel{
+    NSString *methodName = NSStringFromSelector(sel);
+    if ([methodName hasPrefix:@"change"]) {
+        class_addMethod([self class], sel, (IMP)ChangeFunction, "v@:");
+        return YES;
+    }
+    return [super resolveInstanceMethod:sel];
+}
+
+void ChangeFunction(id self,SEL _cmd){
+    if (![self isValid]) {
+        return;
+    }
+    
+    NSString *methodName = NSStringFromSelector(_cmd);
+    methodName = [methodName substringFromIndex:6];
+    methodName = [self lowercaseFirstChar:methodName];
+    NSArray *fields = [self fields];
+    for (NSDictionary *field in fields) {
+        NSString *fieldName = field[WDBaseFieldKey];
+        NSString *propName = field[WDBaseFieldProperty];
+        NSString *idFieldName = [[self fieldForId] objectForKey:WDBaseFieldKey];
+        NSString *idPropName = [[self fieldForId] objectForKey:WDBaseFieldProperty];
+        if (propName && fieldName && [methodName isEqualToString:propName] &&
+            [self respondsToSelector:NSSelectorFromString(propName)] ) {
+
+            NSObject *value = [(NSObject *)self valueForKey:propName];
+            NSString *idValue = [(NSString *)self valueForKey:idPropName];
+            if (value != nil) {//value为空的情况下，就不做插入
+                [WDDBService executeUpdateSql:[NSString stringWithFormat:@"UPDATE %@ SET %@=:%@ where %@=:%@",[self tableName],fieldName,fieldName,idFieldName,idFieldName]
+                                     withArgs:@{fieldName:value,idFieldName:idValue}];
+            }
+            
+        }
+    }
+    
+}
+
+//+ (BOOL)resolveInstanceMethod:(SEL)aSEL
+//{
+////    if(aSEL == @selector(foo:)){
+////        class_addMethod([self class], aSEL, (IMP)fooMethod, &quot;v@:&quot;);
+////        return YES;
+////    }
+//    return [super resolveInstanceMethod];
+//}
+
 #pragma mark - util
+
+- (NSString *)lowercaseFirstChar:(NSString *)input{
+    
+    NSMutableString *result = [[NSMutableString alloc] init];
+    [result appendString:[[input substringToIndex:1] lowercaseString]];
+    [result appendString:[input substringFromIndex:1]];
+    return result;
+}
+
 - (BOOL)isValid{
     if (![self fields]) {
         NSLog(@"子类请重载 @selector(fields)");
@@ -199,10 +258,22 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         NSLog(@"子类请重载 @selector(tableName)");
         return NO;
     }
-    if (![self fieldForId]) {
-        NSLog(@"子类请重载 @selector(fieldForId)");
+    NSString *idFieldName = [[self fieldForId] objectForKey:WDBaseFieldKey];
+    NSString *idPropName = [self fieldForId][WDBaseFieldProperty];
+    if (!idFieldName || !idPropName) {
+        NSLog(@"子类请重载 @selector(fieldForId),并且定义id对应的field和prop");
         return NO;
     }
+    if (![self respondsToSelector:NSSelectorFromString(idPropName)]) {
+        NSLog(@"@selector(fieldForId) 定义的id属性不存在");
+        return NO;
+    }
+    id fieldId = [self valueForKey:idPropName];
+    if (!fieldId || ![fieldId isKindOfClass:[NSString class]]) {
+        NSLog(@"@selector(fieldForId) 定义的id属性值不存在或者类型不为NSString");
+        return NO;
+    }
+    
     return YES;
 }
 

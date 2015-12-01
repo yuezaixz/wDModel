@@ -22,7 +22,7 @@
 
 - (NSString *)tableName;
 - (NSArray *)fields;
-- (NSString *)fieldForId;
+- (NSDictionary *)fieldForId;
 + (NSArray *)extraFields;
 + (NSArray *)excludedFields;
 
