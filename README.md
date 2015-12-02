@@ -146,6 +146,12 @@ WDUser *user = [[WDUser alloc] init];
 ##TODO LIST
 
 * 所有的验证用AOP实现
+* 减少配置：所有属性是否都默认入库，没有出现在fields中的是否默认为field与prop名相同？这样得启用excludeFields方法。
+* 减少配置：没有表名默认为类名首字母小写
+* 减少配置：没有idField默认叫id？
+* 性能：待测试
+* 类型转换: 对象类型可以自动转换
+* 类型安全: 转换过程中，所有的数据类型都会被检测一遍，以保证类型安全，避免崩溃问题
 * runtime 方法是否可以不用[user performSelector:@selector(parentField)]方式调用
 * 已经fetch后的数据，其他地方对数据进行了update，那么是否能同步修改所有的？有一个总的管理器，管理所有创建的Model？内存开销？
 

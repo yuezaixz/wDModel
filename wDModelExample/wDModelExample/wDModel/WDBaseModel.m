@@ -266,15 +266,6 @@ void ChangeFunction(id self,SEL _cmd){
     
 }
 
-//+ (BOOL)resolveInstanceMethod:(SEL)aSEL
-//{
-////    if(aSEL == @selector(foo:)){
-////        class_addMethod([self class], aSEL, (IMP)fooMethod, &quot;v@:&quot;);
-////        return YES;
-////    }
-//    return [super resolveInstanceMethod];
-//}
-
 #pragma mark - util
 
 - (NSString *)lowercaseFirstChar:(NSString *)input{
