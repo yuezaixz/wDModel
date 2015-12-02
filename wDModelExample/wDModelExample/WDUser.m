@@ -24,7 +24,7 @@
              @{@"field":@"email",@"prop":@"email"},
              @{@"field":@"sex",@"prop":@"sex"},
              @{@"field":@"weight",@"prop":@"weight"},
-             @{@"field":@"parent",@"prop":@"parent"},];
+             @{@"field":@"parent",@"prop":@"parent",@"lazy":@(YES)},];
 }
 
 - (NSDictionary *)fieldForId{

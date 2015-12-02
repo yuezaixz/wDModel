@@ -8,6 +8,9 @@
 * 通用UPDATE方法
 * 通用FETCH方法
 * 通用FETCH_ONE方法
+* lazy延时加载功能
+* changeXxx方法，可以单独保存某个属性的值
+* xxxField方法可以单独读取某个属性的值，可以用于读取设置了lazy的属性或者解析NSData类型属性
 
 ###不做的事情
 对于数据表的CREATE和MIGRATION不进行封装，需要用户用SQL进行『填空』
@@ -95,8 +98,8 @@
              @{@"field":@"sex",@"prop":@"sex"},];
 }
 
-- (NSString *)fieldForId{
-    return @"user_id";
+- (NSDictionary *)fieldForId{
+    return @{@"field":@"user_id",@"prop":@"userId"};
 }
 
 -(NSString *)description{
@@ -110,6 +113,7 @@
 然后save、update、fetch调用就好了。
 
 ```objc
+//SAVE
 WDUser *user = [[WDUser alloc] init];
     user.name = @"汤莹";
     user.email = @"450620338@qq.com";
@@ -120,11 +124,29 @@ WDUser *user = [[WDUser alloc] init];
 //    NSArray *models = [WDUser fetch:@{@"email":@"xiao303178394@gmail.com"} sortField:nil isAsc:YES];
     NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
     NSLog(@"%@",models);
+    
+    //update
+    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
+    user2.email = @"aaaaa.com";
+    user2.weight = @(55.5);
+    user2.parent = [NSKeyedArchiver archivedDataWithRootObject:@[@{@"father":@"A",@"age":@58},@{@"mother":@"B",@"age":@52}]];
+    [user2 update];
+    
+      //动态改变属性
+//    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
+//    user2.weight = @67.9;
+//    [user2 performSelector:@selector(changeWeight)];
+    
+    //动态读取属性，如果属性是NSData会解析
+    WDUser *user3 = (WDUser *)[WDUser fetchOne:@{@"user_id":@2}];
+    NSLog(@"parent:%@",[user3 performSelector:@selector(parentField)]);
+    NSLog(@"weight:%@",[user3 performSelector:@selector(weightField)]);
 ```
 
 ##TODO LIST
 
-* lazy功能实现
+* 所有的验证用AOP实现
+* runtime 方法是否可以不用[user performSelector:@selector(parentField)]方式调用
 * 已经fetch后的数据，其他地方对数据进行了update，那么是否能同步修改所有的？有一个总的管理器，管理所有创建的Model？内存开销？
 
 

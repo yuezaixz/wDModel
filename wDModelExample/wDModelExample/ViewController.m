@@ -27,13 +27,17 @@
     
     //fetch
 //    NSArray *models = [WDUser fetch:@{@"email":@"450620338@qq.com"} sortField:nil isAsc:YES];
-    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
-    NSLog(@"%@",models);
+//    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+//    NSLog(@"%@",models);
     
     //动态改变属性
 //    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
 //    user2.weight = @67.9;
 //    [user2 performSelector:@selector(changeWeight)];
+    
+//    WDUser *user3 = (WDUser *)[WDUser fetchOne:@{@"user_id":@2}];
+//    NSLog(@"parent:%@",[user3 performSelector:@selector(parentField)]);
+//    NSLog(@"weight:%@",[user3 performSelector:@selector(weightField)]);
     
 //    user2.email = @"aaaaa.com";
 //    user2.weight = @(55.5);

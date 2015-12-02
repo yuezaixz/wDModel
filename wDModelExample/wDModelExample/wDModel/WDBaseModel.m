@@ -44,6 +44,9 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         NSArray *fields = [modle fields];
         NSMutableDictionary *porpValueDict = [[NSMutableDictionary alloc] init];
         for (NSDictionary *field in fields) {
+            if ([field valueForKey:WDBaseFieldIsLazy] && [[field valueForKey:WDBaseFieldIsLazy] boolValue] == YES) {
+                continue;
+            }
             NSObject *value = [fieldValueDict objectForKey:field[WDBaseFieldKey]];
             if (value) {
                 [porpValueDict setObject:value forKey:field[WDBaseFieldProperty]];
@@ -55,7 +58,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 }
 
 - (NSString *)sqlForUpdate{
-    if (![self isValid]) {
+    if (![self isUpdateValid]) {
         return nil;
     }
     NSMutableArray *fields = [[self fields] mutableCopy];
@@ -182,7 +185,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 }
 
 - (void)update{//验证id不能为空
-    if (![self isValid]) {
+    if (![self isUpdateValid]) {
         return;
     }
     NSString *sql = self.sqlForUpdate;
@@ -197,12 +200,45 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     if ([methodName hasPrefix:@"change"]) {
         class_addMethod([self class], sel, (IMP)ChangeFunction, "v@:");
         return YES;
+    } else if ([methodName hasSuffix:@"Field"]) {
+        class_addMethod([self class], sel, (IMP)ReadFeild, "v@:");
+        return YES;
     }
     return [super resolveInstanceMethod:sel];
 }
 
-void ChangeFunction(id self,SEL _cmd){
+id ReadFeild(id self,SEL _cmd){
     if (![self isValid]) {
+        return nil;
+    }
+    NSString *methodName = NSStringFromSelector(_cmd);
+    methodName = [methodName substringToIndex:[methodName length]-5];
+    NSArray *fields = [self fields];
+    for (NSDictionary *field in fields) {
+        NSString *fieldName = field[WDBaseFieldKey];
+        NSString *propName = field[WDBaseFieldProperty];
+        NSString *idFieldName = [[self fieldForId] objectForKey:WDBaseFieldKey];
+        NSString *idPropName = [[self fieldForId] objectForKey:WDBaseFieldProperty];
+        if (propName && fieldName && [methodName isEqualToString:propName] &&
+            [self respondsToSelector:NSSelectorFromString(propName)] ) {
+            
+            NSString *idValue = [(NSString *)self valueForKey:idPropName];
+            NSDictionary *result = [WDDBService executeQuerySql:[NSString stringWithFormat:@"SELECT %@ FROM %@ where %@=:%@",fieldName,[self tableName],idFieldName,idFieldName]
+                                 withArgs:@{idFieldName:idValue}];
+            if ([result.allKeys containsObject:fieldName] && [result objectForKey:fieldName] != [NSNull null]) {
+                NSObject *oriData = [result objectForKey:fieldName];
+                if ([oriData isKindOfClass:[NSData class]]) {
+                    oriData = [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)oriData];
+                }
+                return oriData;
+            }
+        }
+    }
+    return nil;
+}
+
+void ChangeFunction(id self,SEL _cmd){
+    if (![self isUpdateValid]) {
         return;
     }
     
@@ -268,12 +304,21 @@ void ChangeFunction(id self,SEL _cmd){
         NSLog(@"@selector(fieldForId) 定义的id属性不存在");
         return NO;
     }
+    
+    return YES;
+}
+
+- (BOOL)isUpdateValid{
+    if (![self isValid]) {
+        return NO;
+    }
+    
+    NSString *idPropName = [self fieldForId][WDBaseFieldProperty];
     id fieldId = [self valueForKey:idPropName];
     if (!fieldId || ![fieldId isKindOfClass:[NSString class]]) {
         NSLog(@"@selector(fieldForId) 定义的id属性值不存在或者类型不为NSString");
         return NO;
     }
-    
     return YES;
 }
 
