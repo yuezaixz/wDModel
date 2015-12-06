@@ -10,7 +10,7 @@
 
 @implementation WDUser
 
-- (NSString *)tableName{
++ (NSString *)tableName{
     return @"user";
 }
 
@@ -18,7 +18,7 @@
 //@property (nonatomic, copy) NSString * name;
 //@property (nonatomic, strong) NSNumber * sex;        //1：男 2：女
 //@property (nonatomic, copy) NSString * email;
-- (NSArray *)fields{
++ (NSArray *)fields{
     return @[@{@"field":@"user_id",@"prop":@"userId"},
              @{@"field":@"name",@"prop":@"name"},
              @{@"field":@"email",@"prop":@"email"},
@@ -27,7 +27,7 @@
              @{@"field":@"parent",@"prop":@"parent",@"lazy":@(YES)},];
 }
 
-- (NSDictionary *)fieldForId{
++ (NSDictionary *)fieldForId{
     return @{@"field":@"user_id",@"prop":@"userId"};
 }
 

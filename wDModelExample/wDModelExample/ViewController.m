@@ -27,8 +27,8 @@
     
     //fetch
 //    NSArray *models = [WDUser fetch:@{@"email":@"450620338@qq.com"} sortField:nil isAsc:YES];
-//    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
-//    NSLog(@"%@",models);
+    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+    NSLog(@"%@",models);
     
     //动态改变属性
 //    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];

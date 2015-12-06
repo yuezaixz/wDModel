@@ -8,6 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol WDModel <NSObject>
+
+@optional
++ (NSString *)tableName;
++ (NSArray *)fields;
++ (NSArray *)excludedFields;
++ (NSDictionary *)fieldForId;
+
+@end
+
 @interface WDBaseModel : NSObject
 
 + (WDBaseModel *)fetchOne:(NSDictionary *)kvDict;
@@ -19,12 +29,6 @@
 - (NSString *)sqlForInsert;
 
 - (NSDictionary *)dictionaryForKeyValue;
-
-- (NSString *)tableName;
-- (NSArray *)fields;
-- (NSDictionary *)fieldForId;
-+ (NSArray *)extraFields;
-+ (NSArray *)excludedFields;
 
 - (void)save;
 - (void)update;

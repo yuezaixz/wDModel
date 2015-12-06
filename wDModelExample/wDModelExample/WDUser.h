@@ -14,7 +14,7 @@ typedef NS_ENUM(NSInteger, UserSex) {
     UserSexUnknow
 };
 
-@interface WDUser : WDBaseModel
+@interface WDUser : WDBaseModel<WDModel>
 
 @property (nonatomic,strong) NSNumber *userId;
 @property (nonatomic, copy) NSString * name;
