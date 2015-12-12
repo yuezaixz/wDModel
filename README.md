@@ -145,6 +145,7 @@ WDUser *user = [[WDUser alloc] init];
 
 ##TODO LIST
 
+* SAVE结束后自动填充id
 * 所有的验证用AOP实现
 * 启用excludeFields方法
 * 框架重构 待测试，值测试了 save和get
