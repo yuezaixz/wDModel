@@ -368,11 +368,11 @@ void ChangeFunction(id self,SEL _cmd){
         
         if ([self respondsToSelector:setSel]) {
             ///2.2 获取字典中key对应的value
-            NSString  *value = [NSString stringWithFormat:@"%@", data[dicKey[i]]];
+//            NSString  *value = [NSString stringWithFormat:@"%@", data[dicKey[i]]];
             
             ///2.3 把值通过setter方法赋值给实体类的属性
             [self performSelectorOnMainThread:setSel
-                                   withObject:value
+                                   withObject:data[dicKey[i]]
                                 waitUntilDone:[NSThread isMainThread]];
         }
     }
