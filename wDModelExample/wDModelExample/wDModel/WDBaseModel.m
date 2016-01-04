@@ -175,6 +175,42 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     [WDDBService executeUpdateSql:sql withArgs:keyValueDict];
 }
 
+- (void)delete{
+    NSString *idField = [self.fieldForId_ objectForKey:WDBaseFieldKey];
+    NSString *selector = [self.fieldForId_ objectForKey:WDBaseFieldProperty];
+    
+    if (selector && [self respondsToSelector:NSSelectorFromString(selector)])
+    {
+        NSObject *value = [(NSObject *)self valueForKey:selector];
+        if (value) {
+            [[self class] delete:@{idField:value}];
+        }
+    }
+}
+
++ (void)deleteAllData{
+    NSMutableString *sql = [NSMutableString string];
+    [sql appendFormat:@"DELETE FROM %@ ",[[self alloc] tableName_]];
+    [WDDBService executeUpdateSql:sql withArgs:nil];
+}
+
++ (void)delete:(NSDictionary *)kvDict{
+    NSMutableString *sql = [NSMutableString string];
+    [sql appendFormat:@"DELETE FROM %@ ",[[self alloc] tableName_]];
+    if (kvDict) {
+        [sql appendString:@" WHERE "];
+        for (NSString *key in [kvDict allKeys]) {
+            NSObject *value = [kvDict objectForKey:key];
+            if (value != nil && !([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]])) {
+                continue;
+            }
+            [sql appendFormat:@" %@=:%@,",key,key];
+        }
+    }
+    [sql deleteCharactersInRange:NSMakeRange([sql length]-1, 1)];
+    [WDDBService executeUpdateSql:sql withArgs:kvDict];
+}
+
 - (NSArray *)fields_{
     if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fields)]) {
         return [self.class performSelector:@selector(fields)];

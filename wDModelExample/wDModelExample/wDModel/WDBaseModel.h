@@ -30,6 +30,12 @@
 
 - (NSDictionary *)dictionaryForKeyValue;
 
+- (void)delete;
+
++ (void)deleteAllData;
+
++ (void)delete:(NSDictionary *)kvDict;
+
 - (void)save;
 - (void)update;
 
