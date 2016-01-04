@@ -355,14 +355,15 @@ void ChangeFunction(id self,SEL _cmd){
     if (![self isValid]) {
         return NO;
     }
-    id<WDModel> model = (id<WDModel>)self;
-    
-    NSString *idPropName = [model fieldForId][WDBaseFieldProperty];
-    id fieldId = [self valueForKey:idPropName];
-    if (!fieldId || ![fieldId isKindOfClass:[NSString class]]) {
-        NSLog(@"@selector(fieldForId) 定义的id属性值不存在或者类型不为NSString");
-        return NO;
-    }
+    //暂时不用验证了
+//    id<WDModel> model = (id<WDModel>)self;
+//    
+//    NSString *idPropName = [model fieldForId][WDBaseFieldProperty];
+//    id fieldId = [self valueForKey:idPropName];
+//    if (!fieldId || ![fieldId isKindOfClass:[NSString class]]) {
+//        NSLog(@"@selector(fieldForId) 定义的id属性值不存在或者类型不为NSString");
+//        return NO;
+//    }
     return YES;
 }
 
