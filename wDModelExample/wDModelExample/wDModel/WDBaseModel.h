@@ -52,6 +52,8 @@
 
 + (instancetype)modelFromJsonDict:(NSDictionary *)jsonKvDict;
 
+- (NSDictionary *)jsonDict;
+
 + (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField isAsc:(BOOL)isAsc;
 
 - (NSString *)sqlForUpdate;

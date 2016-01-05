@@ -78,7 +78,7 @@
 //    [user5 save];
     
     WDUser *user6 = [WDUser fetchOne:@{@"user_id":@23}];
-    NSLog(@"%@",user6);
+    NSLog(@"%@",user6.jsonDict);
 }
 
 - (void)didReceiveMemoryWarning {

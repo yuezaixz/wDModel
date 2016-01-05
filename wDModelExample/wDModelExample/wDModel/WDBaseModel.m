@@ -36,6 +36,26 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     return modle;
 }
 
+- (NSDictionary *)jsonDict {
+    NSMutableDictionary *jsonDict = [NSMutableDictionary dictionary];
+    
+    NSArray *fields = [self fieldsForJson_];
+    for (NSDictionary *field in fields) {
+        if ([field valueForKey:WDBaseFieldIsLazy] && [[field valueForKey:WDBaseFieldIsLazy] boolValue] == YES) {
+            continue;
+        }
+        
+        if ([self respondsToSelector:NSSelectorFromString([field valueForKey:WDBaseFieldProperty])]) {
+            NSObject *value = [self performSelector:NSSelectorFromString([field valueForKey:WDBaseFieldProperty])];
+            if (value && value != [NSNull null]) {
+                [jsonDict setObject:value forKey:field[WDBaseFieldKey]];
+            }
+        }
+    }
+    
+    return jsonDict;
+}
+
 //这两个方法主要用于内部，返回的类型会是WDBaseModel，所以需要类型强制转换
 + (instancetype)fetchOne:(NSDictionary *)kvDict{
     return [[self fetch:kvDict sortField:nil isAsc:YES] firstObject];
