@@ -34,7 +34,7 @@
     self = [super init];
     if(self){
         FMDatabase *db = [self getDB];
-        
+
         NSString *userSQL = @"create table if not exists user (user_id integer not null primary key autoincrement,";
         userSQL = [userSQL stringByAppendingString:@"name varchar(100),sex integer)"];
         if([db open]){
@@ -55,7 +55,7 @@
     if (version < 1) {//新的版本号
         NSMutableArray *sqlArray = [NSMutableArray array];
         NSString *userEmailAddSql = @"alter table user add column email varchar(100)";
-        
+
         [sqlArray addObject:userEmailAddSql];
         FMDatabase *db = [self getDB];
         if([db open]){
@@ -70,8 +70,8 @@
             [db close];
         }
     }
-    
-    
+
+
     [udf setObject:@(version) forKey:@"sportdatabaseversion"];
     [udf synchronize];
 }
@@ -119,24 +119,24 @@ WDUser *user = [[WDUser alloc] init];
     user.email = @"450620338@qq.com";
     user.sex = @(UserSexFemale);
     [user save];
-    
+
     //fetch
 //    NSArray *models = [WDUser fetch:@{@"email":@"xiao303178394@gmail.com"} sortField:nil isAsc:YES];
     NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
     NSLog(@"%@",models);
-    
+
     //update
     WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
     user2.email = @"aaaaa.com";
     user2.weight = @(55.5);
     user2.parent = [NSKeyedArchiver archivedDataWithRootObject:@[@{@"father":@"A",@"age":@58},@{@"mother":@"B",@"age":@52}]];
     [user2 update];
-    
+
       //动态改变属性
 //    WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
 //    user2.weight = @67.9;
 //    [user2 performSelector:@selector(changeWeight)];
-    
+
     //动态读取属性，如果属性是NSData会解析
     WDUser *user3 = (WDUser *)[WDUser fetchOne:@{@"user_id":@2}];
     NSLog(@"parent:%@",[user3 performSelector:@selector(parentField)]);
@@ -145,6 +145,7 @@ WDUser *user = [[WDUser alloc] init];
 
 ##TODO LIST
 
+* json对象转换的转换方法自定义
 * SAVE结束后自动填充id
 * 所有的验证用AOP实现
 * 启用excludeFields方法
