@@ -62,6 +62,23 @@
 //    NSInteger afterDeleteCount = [models count];
 //    NSLog(@"删除数据数量：%ld",beforeDeleteCount-afterDeleteCount);
     
+//    +(NSArray *)fieldsForJson{
+//        return @[@{@"field":@"u_id",@"prop":@"userId"},
+//                 @{@"field":@"name",@"prop":@"name"},
+//                 @{@"field":@"email",@"prop":@"email"},
+//                 @{@"field":@"sex",@"prop":@"sex"},
+//                 @{@"field":@"weight",@"prop":@"weight"},
+//                 @{@"field":@"parent",@"prop":@"parent"},];
+    
+//    WDUser *user5 = [WDUser modelFromJsonDict:@{@"u_id":@(23),
+//                                                @"name":@"David_Wooo",
+//                                                @"email":@"david@paodong.cn",
+//                                                @"sex":@(UserSexMale),
+//                                                @"weight":@65.9}];
+//    [user5 save];
+    
+    WDUser *user6 = [WDUser fetchOne:@{@"user_id":@23}];
+    NSLog(@"%@",user6);
 }
 
 - (void)didReceiveMemoryWarning {

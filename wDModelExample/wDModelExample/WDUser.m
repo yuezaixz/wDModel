@@ -27,6 +27,14 @@
              @{@"field":@"parent",@"prop":@"parent",@"lazy":@(YES)},];
 }
 
++(NSArray *)fieldsForJson{
+    return @[@{@"field":@"u_id",@"prop":@"userId"},
+             @{@"field":@"name",@"prop":@"name"},
+             @{@"field":@"email",@"prop":@"email"},
+             @{@"field":@"sex",@"prop":@"sex"},
+             @{@"field":@"weight",@"prop":@"weight"}];
+}
+
 + (NSDictionary *)fieldForId{
     return @{@"field":@"user_id",@"prop":@"userId"};
 }

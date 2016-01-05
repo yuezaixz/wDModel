@@ -17,6 +17,25 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 
 @implementation WDBaseModel
 
++ (instancetype)modelFromJsonDict:(NSDictionary *)jsonKvDict{
+    Class c = [self class];
+    WDBaseModel *modle = [[c alloc] init];
+    NSArray *fields = [modle fieldsForJson_];
+    NSMutableDictionary *porpValueDict = [[NSMutableDictionary alloc] init];
+    for (NSDictionary *field in fields) {
+        if ([field valueForKey:WDBaseFieldIsLazy] && [[field valueForKey:WDBaseFieldIsLazy] boolValue] == YES) {
+            continue;
+        }
+        NSObject *value = [jsonKvDict objectForKey:field[WDBaseFieldKey]];
+        if (value) {
+            [porpValueDict setObject:value forKey:field[WDBaseFieldProperty]];
+        }
+    }
+    [modle assginToPropertyWithDictionary:porpValueDict];
+    
+    return modle;
+}
+
 //这两个方法主要用于内部，返回的类型会是WDBaseModel，所以需要类型强制转换
 + (instancetype)fetchOne:(NSDictionary *)kvDict{
     return [[self fetch:kvDict sortField:nil isAsc:YES] firstObject];
@@ -222,6 +241,27 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     
     if (properties) {
 
+        for (unsigned int i = 0; i < propertyCount; i++) {
+            NSString *propName = [self getPropName:properties[i]];
+            
+            if (propName) [propArray addObject:@{@"field":propName,@"prop":propName}];
+        }
+        free(properties);
+    }
+    return propArray;
+}
+
+- (NSArray *)fieldsForJson_{
+    if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fieldsForJson)]) {
+        return [self.class performSelector:@selector(fieldsForJson)];
+    }
+    unsigned int propertyCount = 0;
+    objc_property_t *properties = class_copyPropertyList(self.class, &propertyCount);
+    
+    NSMutableArray *propArray = [NSMutableArray array];
+    
+    if (properties) {
+        
         for (unsigned int i = 0; i < propertyCount; i++) {
             NSString *propName = [self getPropName:properties[i]];
             
