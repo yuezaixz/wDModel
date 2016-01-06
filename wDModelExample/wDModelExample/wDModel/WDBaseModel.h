@@ -71,6 +71,10 @@
 - (void)save;
 - (void)update;
 
+- (NSString *)fieldNameByProp:(NSString *)propName;
+
+- (NSString *)propNameByField:(NSString *)fieldName;
+
 @end
 
 @interface WDBaseField : NSObject
