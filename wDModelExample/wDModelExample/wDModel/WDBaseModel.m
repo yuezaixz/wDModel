@@ -87,10 +87,10 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     if (kvDict) {
         [sql appendString:@" WHERE "];
         for (NSString *key in [kvDict allKeys]) {
-            [sql appendFormat:@" %@=:%@,",key,key];
+            [sql appendFormat:@" %@=:%@ and",key,key];
         }
+        [sql deleteCharactersInRange:NSMakeRange([sql length]-3, 3)];
     }
-    [sql deleteCharactersInRange:NSMakeRange([sql length]-1, 1)];
     if (sortField) {
         [sql appendFormat:@" ORDER BY %@ ",sortField];
         [sql appendString:isAsc?@"ASC":@"DESC"];
@@ -361,17 +361,17 @@ id ReadFeild(id self,SEL _cmd){
     }
     NSString *methodName = NSStringFromSelector(_cmd);
     methodName = [methodName substringToIndex:[methodName length]-5];
-    NSArray *fields = [self fields];
+    NSArray *fields = [self fields_];
     for (NSDictionary *field in fields) {
         NSString *fieldName = field[WDBaseFieldKey];
         NSString *propName = field[WDBaseFieldProperty];
-        NSString *idFieldName = [[self fieldForId] objectForKey:WDBaseFieldKey];
-        NSString *idPropName = [[self fieldForId] objectForKey:WDBaseFieldProperty];
+        NSString *idFieldName = [[self fieldForId_] objectForKey:WDBaseFieldKey];
+        NSString *idPropName = [[self fieldForId_] objectForKey:WDBaseFieldProperty];
         if (propName && fieldName && [methodName isEqualToString:propName] &&
             [self respondsToSelector:NSSelectorFromString(propName)] ) {
             
             NSString *idValue = [(NSString *)self valueForKey:idPropName];
-            NSDictionary *result = [WDDBService executeQuerySql:[NSString stringWithFormat:@"SELECT %@ FROM %@ where %@=:%@",fieldName,[self tableName],idFieldName,idFieldName]
+            NSDictionary *result = [WDDBService executeQuerySql:[NSString stringWithFormat:@"SELECT %@ FROM %@ where %@=:%@",fieldName,[self tableName_],idFieldName,idFieldName]
                                  withArgs:@{idFieldName:idValue}];
             if ([result.allKeys containsObject:fieldName] && [result objectForKey:fieldName] != [NSNull null]) {
                 NSObject *oriData = [result objectForKey:fieldName];
@@ -393,18 +393,18 @@ void ChangeFunction(id self,SEL _cmd){
     NSString *methodName = NSStringFromSelector(_cmd);
     methodName = [methodName substringFromIndex:6];
     methodName = [self lowercaseFirstChar:methodName];
-    NSArray *fields = [self fields];
+    NSArray *fields = [self fields_];
     for (NSDictionary *field in fields) {
         NSString *fieldName = field[WDBaseFieldKey];
         NSString *propName = field[WDBaseFieldProperty];
-        NSString *idFieldName = [[self fieldForId] objectForKey:WDBaseFieldKey];
-        NSString *idPropName = [[self fieldForId] objectForKey:WDBaseFieldProperty];
+        NSString *idFieldName = [[self fieldForId_] objectForKey:WDBaseFieldKey];
+        NSString *idPropName = [[self fieldForId_] objectForKey:WDBaseFieldProperty];
         if (propName && fieldName && [methodName isEqualToString:propName] &&
             [self respondsToSelector:NSSelectorFromString(propName)] ) {
 
             NSObject *value = [(NSObject *)self valueForKey:propName];
             NSString *idValue = [(NSString *)self valueForKey:idPropName];
-            if (value != nil) {//value为空的情况下，就不做插入
+            if (value != nil && value != [NSNull null] && idValue != nil) {//value为空的情况下，就不做插入
                 [WDDBService executeUpdateSql:[NSString stringWithFormat:@"UPDATE %@ SET %@=:%@ where %@=:%@",[self tableName_],fieldName,fieldName,idFieldName,idFieldName]
                                      withArgs:@{fieldName:value,idFieldName:idValue}];
             }
