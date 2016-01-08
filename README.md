@@ -2,14 +2,18 @@
 ##介绍
 ###封装
 这是一个对FMDB进行封装的sqlite ORM库，为了和当前应用场景完美替换，对于数据表的CREATE和MIGRATION不进行封装，需要用户用SQL进行『填空』。
+一些方法的封装主要用到的objc的runtime特性。
+
 ###功能
+
+主要是对一些经常用到的CRUD方法进行封装，目标就是不失灵活性，又能比较好的做到ORM功能，所以提供了以下封装的方法。
 
 * 通用SAVE方法
 * 通用UPDATE方法
 * 通用DELETE方法
-* 通用FETCH方法
+* 通用FETCH方法，查询条件支持 = >= <= > <等运算方式
 * 通用FETCH_ONE方法
-* lazy延时加载功能
+* lazy延时加载功能，对于一些数据量比较大的数据可以进行懒加载操作，减少内存，用到的时候再用xxxField去读取
 * changeXxx方法，可以单独保存某个属性的值
 * xxxField方法可以单独读取某个属性的值，可以用于读取设置了lazy的属性或者解析NSData类型属性
 
@@ -127,10 +131,20 @@ WDUser *user = [[WDUser alloc] init];
 ```
 
 ####FETCH
+
+查询有3种方式：
+
+* 一种是fetch不带参数，那就等于查询所有的元素
+* 一种是fetch带参数做『等于查询』
+* 还一种是fetch的参数Dict中的key中已经带了运算表达式了，比如 ```@{@"user_id>=":@(1)}``` 就是查询user_id大于等于1的用户
+
+当然，除了fetch外还有fetchOne，就是只查询一条，多用于比较明确的查询。
+
 ```objc
 //fetch
 //    NSArray *models = [WDUser fetch:@{@"email":@"xiao303178394@gmail.com"} sortField:nil isAsc:YES];
-    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+//    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+    NSArray *models = [WDUser fetch:@{@"user_id>=":@(1)} sortField:nil isAsc:YES];
     NSLog(@"%@",models);
     WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
 ```

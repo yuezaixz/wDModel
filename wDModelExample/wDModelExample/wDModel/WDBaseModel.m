@@ -82,12 +82,27 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 }
 
 + (NSArray *)fetch:(NSDictionary *)kvDict sortField:(NSString *)sortField isAsc:(BOOL)isAsc{
+    NSMutableDictionary *queryDict = [NSMutableDictionary dictionary];
     NSMutableString *sql = [NSMutableString string];
     [sql appendFormat:@"SELECT * FROM %@ ",[[self alloc] tableName_]];
     if (kvDict) {
         [sql appendString:@" WHERE "];
         for (NSString *key in [kvDict allKeys]) {
-            [sql appendFormat:@" %@=:%@ and",key,key];
+            NSObject *value = [kvDict objectForKey:key];
+            if (!value || value == [NSNull null]) {
+                continue;
+            }
+            if ([key containsString:@">"] || [key containsString:@"<"]) {
+                NSString *realKey = [key stringByReplacingOccurrencesOfString:@">" withString:@""];
+                realKey = [realKey stringByReplacingOccurrencesOfString:@"<" withString:@""];
+                realKey = [realKey stringByReplacingOccurrencesOfString:@"=" withString:@""];
+                realKey = [realKey stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                [queryDict setObject:value forKey:realKey];
+                [sql appendFormat:@" %@:%@ and",key,realKey];
+            } else {
+                [sql appendFormat:@" %@=:%@ and",key,key];
+                [queryDict setObject:value forKey:key];
+            }
         }
         [sql deleteCharactersInRange:NSMakeRange([sql length]-3, 3)];
     }
@@ -96,7 +111,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         [sql appendString:isAsc?@"ASC":@"DESC"];
     }
     __weak WDBaseModel *weakSelf = (WDBaseModel *)self;
-    return [WDDBService executeQuerySql:sql withArgs:kvDict propSetBlock:^NSObject *(NSDictionary *fieldValueDict){
+    return [WDDBService executeQuerySql:sql withArgs:queryDict propSetBlock:^NSObject *(NSDictionary *fieldValueDict){
         
         Class c = [weakSelf class];
         WDBaseModel *modle = [[c alloc] init];

@@ -28,6 +28,7 @@
     //fetch
 //    NSArray *models = [WDUser fetch:@{@"email":@"450620338@qq.com"} sortField:nil isAsc:YES];
 //    NSArray *models = [WDUser fetch:nil sortField:nil isAsc:YES];
+//    NSArray *models = [WDUser fetch:@{@"user_id>=":@(1)} sortField:nil isAsc:YES];
 //    NSLog(@"%@",models);
 
     //动态改变属性
@@ -76,9 +77,9 @@
 //                                                @"sex":@(UserSexMale),
 //                                                @"weight":@65.9}];
 //    [user5 save];
-    
-    WDUser *user6 = [WDUser fetchOne:@{@"user_id":@23}];
-    NSLog(@"%@",user6.jsonDict);
+//    
+//    WDUser *user6 = [WDUser fetchOne:@{@"user_id":@23}];
+//    NSLog(@"%@",user6.jsonDict);
 }
 
 - (void)didReceiveMemoryWarning {
