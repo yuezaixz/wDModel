@@ -10,6 +10,15 @@
 
 @implementation WDUser
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.createTime = [NSDate date];
+    }
+    return self;
+}
+
 + (NSString *)tableName{
     return @"user";
 }
@@ -24,7 +33,9 @@
              @{@"field":@"email",@"prop":@"email"},
              @{@"field":@"sex",@"prop":@"sex"},
              @{@"field":@"weight",@"prop":@"weight"},
-             @{@"field":@"parent",@"prop":@"parent",@"lazy":@(YES)},];
+             @{@"field":@"parent",@"prop":@"parent",@"lazy":@(YES)},
+             @{@"field":@"father",@"prop":@"father"},
+             @{@"field":@"create_time",@"prop":@"createTime"},];
 }
 
 +(NSArray *)fieldsForJson{

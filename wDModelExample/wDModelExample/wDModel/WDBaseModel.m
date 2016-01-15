@@ -51,7 +51,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         }
         
         if ([self respondsToSelector:NSSelectorFromString([field valueForKey:WDBaseFieldProperty])]) {
-            NSObject *value = [self performSelector:NSSelectorFromString([field valueForKey:WDBaseFieldProperty])];
+            NSObject *value = [self valueForKey:[field valueForKey:WDBaseFieldProperty]];
             if (value && value != [NSNull null]) {
                 [jsonDict setObject:value forKey:field[WDBaseFieldKey]];
             }
@@ -202,6 +202,9 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         if (selector && [self respondsToSelector:NSSelectorFromString(selector)])
         {
             NSObject *value = [(NSObject *)self valueForKey:selector];
+            if ([value isKindOfClass:[NSDictionary class]] || [value isKindOfClass:[NSArray class]]) {
+                value = [NSKeyedArchiver archivedDataWithRootObject:value];
+            }
             if (value) {
                 [keyValueDict setObject:value forKey:key];
             }

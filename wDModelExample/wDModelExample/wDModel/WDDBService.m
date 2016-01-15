@@ -83,10 +83,14 @@
     if (version < 2) {//新的版本号
         NSMutableArray *sqlArray = [NSMutableArray array];
         NSString *userWeightAddSql = @"alter table user add column weight double";
+        NSString *userCreateTimeAddSql = @"alter table user add column create_time varchar(30)";
         NSString *userParentAddSql = @"alter table user add column parent blob";
+        NSString *userFatherAddSql = @"alter table user add column father blob";
         
         [sqlArray addObject:userWeightAddSql];
         [sqlArray addObject:userParentAddSql];
+        [sqlArray addObject:userCreateTimeAddSql];
+        [sqlArray addObject:userFatherAddSql];
         FMDatabase *db = [self getDB];
         if([db open]){
             [db beginTransaction];

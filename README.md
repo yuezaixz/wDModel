@@ -259,17 +259,17 @@ User对象中增加如下方法:
 
 ##TODO LIST
 
-* 读取懒加载方法，应该在get方法中判断为nil，就去数据库中加载并返回
+* get set 方法，现在都用KVC
+* int float等类型的值，现在都只能用NSNumber
+* read的时候用的是KVC，测试在有些名字情况下会出异常，比如有属性parent，然后又定义了个getParent方法，那么kvc读取parent的时候会去调用getParent
 * json对象转换的转换方法自定义
 * SAVE结束后自动填充id
 * 所有的验证用AOP实现
-* 启用excludeFields方法
 * 框架重构 待测试，值测试了 save和get
 * 减少配置：所有属性是否都默认入库，没有出现在fields中的是否默认为field与prop名相同？ to测试
 * 减少配置：没有表名默认为类名首字母小写 to测试
 * 减少配置：没有idField默认叫id？ to测试
 * 性能：待测试
-* 类型转换: 对象类型可以自动转换
 * 类型安全: 转换过程中，所有的数据类型都会被检测一遍，以保证类型安全，避免崩溃问题
 * runtime 方法是否可以不用[user performSelector:@selector(parentField)]方式调用
 * 已经fetch后的数据，其他地方对数据进行了update，那么是否能同步修改所有的？有一个总的管理器，管理所有创建的Model？内存开销？

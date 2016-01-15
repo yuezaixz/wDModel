@@ -21,6 +21,8 @@ typedef NS_ENUM(NSInteger, UserSex) {
 @property (nonatomic, strong) NSNumber * sex;        //1：男 2：女
 @property (nonatomic, copy) NSString * email;
 @property (nonatomic,strong) NSNumber *weight;
-@property (nonatomic,strong) NSData *parent;
+@property (nonatomic,strong) NSDictionary *father;
+@property (nonatomic,strong) NSArray *parent;
+@property (strong, nonatomic) NSDate *createTime;
 
 @end
