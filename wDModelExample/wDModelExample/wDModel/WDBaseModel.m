@@ -10,6 +10,11 @@
 #import "WDDBService.h"
 #import <objc/runtime.h>
 
+//默认的id字段，如果实现定义idField就会使用这个
+#define WD_DEFAULT_ID_FIELD @"id"
+#define CHANGE_PROP_PREFIX @"change"
+#define READ_PROP_SUFFIX @"Field"
+
 NSString *const WDBaseFieldKey = @"field";
 NSString *const WDBaseFieldProperty = @"prop";
 NSString *const WDBaseFieldType = @"type";
@@ -121,7 +126,20 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
             if ([field valueForKey:WDBaseFieldIsLazy] && [[field valueForKey:WDBaseFieldIsLazy] boolValue] == YES) {
                 continue;
             }
+            WDPropType fieldType = [field[WDBaseFieldType] integerValue];
+            if (fieldType == WDPropTypeUnknown) {
+                continue;
+            }
             NSObject *value = [fieldValueDict objectForKey:field[WDBaseFieldKey]];
+            if ([value isKindOfClass:[NSData class]] && (fieldType == WDPropTypeDictionary || fieldType == WDPropTypeArray)) {
+                value = [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)value];
+            } else if (fieldType == WDPropTypeDate) {
+                if ([value isKindOfClass:[NSString class]]) {
+                    value = [NSDate dateWithTimeIntervalSince1970:[(NSString *)value integerValue]];
+                } else if ([value isKindOfClass:[NSNumber class]]) {
+                    value = [NSDate dateWithTimeIntervalSince1970:[(NSNumber *)value integerValue]];
+                }
+            }
             if (value) {
                 [porpValueDict setObject:value forKey:field[WDBaseFieldProperty]];
             }
@@ -150,6 +168,9 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
         if (selector && [self respondsToSelector:NSSelectorFromString(selector)])
         {
             NSObject *value = [(NSObject *)self valueForKey:selector];
+            if ([value isKindOfClass:[NSDictionary class]] | [value isKindOfClass:[NSArray class]]  ) {
+                value = [NSKeyedArchiver archivedDataWithRootObject:value];
+            }
             if (value != nil) {//value为空的情况下，就不做插入
                 [sql appendFormat:@" %@=:%@ ",key,key];
                 [sql appendString:@","];
@@ -286,30 +307,14 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
 }
 
 - (NSArray *)fields_{
-    if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fields)]) {
-        return [self.class performSelector:@selector(fields)];
-    }
-    unsigned int propertyCount = 0;
-    objc_property_t *properties = class_copyPropertyList(self.class, &propertyCount);
-    
-    NSMutableArray *propArray = [NSMutableArray array];
-    
-    if (properties) {
-
-        for (unsigned int i = 0; i < propertyCount; i++) {
-            NSString *propName = [self getPropName:properties[i]];
-            
-            if (propName) [propArray addObject:@{@"field":propName,@"prop":propName}];
-        }
-        free(properties);
-    }
-    return propArray;
+    return [self fieldsForFieldArray:([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fields)])?[self.class performSelector:@selector(fields)]:nil];
 }
 
 - (NSArray *)fieldsForJson_{
-    if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fieldsForJson)]) {
-        return [self.class performSelector:@selector(fieldsForJson)];
-    }
+    return [self fieldsForFieldArray:([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fieldsForJson)])?[self.class performSelector:@selector(fieldsForJson)]:nil];
+}
+
+- (NSArray *)fieldsForFieldArray:(NSArray *)fields {
     unsigned int propertyCount = 0;
     objc_property_t *properties = class_copyPropertyList(self.class, &propertyCount);
     
@@ -318,9 +323,24 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     if (properties) {
         
         for (unsigned int i = 0; i < propertyCount; i++) {
-            NSString *propName = [self getPropName:properties[i]];
+            objc_property_t property = properties[i];
+            NSString *propName = [self getPropName:property];
             
-            if (propName) [propArray addObject:@{@"field":propName,@"prop":propName}];
+            if (propName) {
+                if (fields) {
+                    for (NSDictionary *field in fields) {
+                        if ([field[WDBaseFieldProperty] isEqualToString:propName]) {
+                            [propArray addObject:@{WDBaseFieldKey:field[WDBaseFieldKey],WDBaseFieldProperty:field[WDBaseFieldProperty],WDBaseFieldType:@([self.class getWDPropertyType:property])}];
+                        }
+                    }
+                } else {
+                    if ([[self.class excludedProps_] containsObject:propName]) {
+                        continue;
+                    }
+                    [propArray addObject:@{WDBaseFieldKey:propName,WDBaseFieldProperty:propName,WDBaseFieldType:@([self.class getWDPropertyType:property])}];
+                }
+                
+            }
         }
         free(properties);
     }
@@ -340,14 +360,14 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
     if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(fieldForId)]) {
         return [self.class performSelector:@selector(fieldForId)];
     }
-    return @{@"field":@"id",@"prop":@"id"};
+    return @{WDBaseFieldKey:WD_DEFAULT_ID_FIELD,WDBaseFieldProperty:WD_DEFAULT_ID_FIELD};
 }
 
-+ (NSArray *)excludedFields_{
-    if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(excludedFields)]) {
-        return [self.class performSelector:@selector(excludedFields)];
++ (NSSet *)excludedProps_{
+    if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(excludedProps)]) {
+        return [self.class performSelector:@selector(excludedProps)];
     }
-    return @[];
+    return [NSSet set];
 }
 - (NSString *)tableName_{
     if ([self.class conformsToProtocol:@protocol(WDModel)] && [self.class respondsToSelector:@selector(tableName)]) {
@@ -412,12 +432,16 @@ void ChangeFunction(id self,SEL _cmd){
     for (NSDictionary *field in fields) {
         NSString *fieldName = field[WDBaseFieldKey];
         NSString *propName = field[WDBaseFieldProperty];
+        WDPropType propType = [field[WDBaseFieldType] integerValue];
         NSString *idFieldName = [[self fieldForId_] objectForKey:WDBaseFieldKey];
         NSString *idPropName = [[self fieldForId_] objectForKey:WDBaseFieldProperty];
         if (propName && fieldName && [methodName isEqualToString:propName] &&
             [self respondsToSelector:NSSelectorFromString(propName)] ) {
 
             NSObject *value = [(NSObject *)self valueForKey:propName];
+            if (propType == WDPropTypeArray || propType == WDPropTypeDictionary) {
+                value = [NSKeyedArchiver archivedDataWithRootObject:value];
+            }
             NSString *idValue = [(NSString *)self valueForKey:idPropName];
             if (value != nil && value != [NSNull null] && idValue != nil) {//value为空的情况下，就不做插入
                 [WDDBService executeUpdateSql:[NSString stringWithFormat:@"UPDATE %@ SET %@=:%@ where %@=:%@",[self tableName_],fieldName,fieldName,idFieldName,idFieldName]
@@ -430,6 +454,77 @@ void ChangeFunction(id self,SEL _cmd){
 }
 
 #pragma mark - util
+
+inline static const char * getPropertyType(objc_property_t property){
+    const char *attributes = property_getAttributes(property);
+    
+    char buffer[1 + strlen(attributes)];
+    strcpy(buffer, attributes);
+    char *state = buffer, *attribute;
+    while ((attribute = strsep(&state, ",")) != NULL) {
+        if (attribute[0] == 'T' && attribute[1] != '@') {
+            char *attributeTemp=(char *)[[NSData dataWithBytes:(attribute + 1) length:strlen(attribute)] bytes];
+            char *p = strtok(attributeTemp, "\"");
+            if(p) return (const char*)p;
+            p = strtok(NULL, "\"");
+            if(p) return  (const char*)p;
+        }
+        else if (attribute[0] == 'T' && attribute[1] == '@' && strlen(attribute) == 2) {
+            return "id";
+        }
+        else if (attribute[0] == 'T' && attribute[1] == '@') {
+            char *attributeTemp=(char *)[[NSData dataWithBytes:(attribute + 3) length:strlen(attribute)] bytes];
+            char *p = strtok(attributeTemp, "\"");
+            if(p) return (const char*)p;
+            p = strtok(NULL, "\"");
+            if(p) return  (const char*)p;
+        }
+        return nil;
+    }
+    return nil;
+}
+
++ (WDPropType)getWDPropertyType:(objc_property_t)property{
+    WDPropType resultType = WDPropTypeUnknown;
+    
+    NSString *type = [[NSString alloc] initWithCString:getPropertyType(property) encoding:NSUTF8StringEncoding];
+    if (!type) type= [[NSString alloc] initWithCString:getPropertyType(property) encoding:NSASCIIStringEncoding];
+    
+    NSString *lowTypeStr = type.lowercaseString;
+    
+    if ([lowTypeStr isEqualToString:@"i"] ||
+        [lowTypeStr isEqualToString:@"l"] ||
+        [lowTypeStr isEqualToString:@"s"] ||
+        [lowTypeStr isEqualToString:@"q"] ||
+        [lowTypeStr isEqualToString:@"b"] ||
+        [lowTypeStr isEqualToString:@"f"] ||
+        [lowTypeStr isEqualToString:@"d"] ) {
+        resultType = WDPropTypeEncodingNumber;
+    }
+    else if ([lowTypeStr isEqualToString:@"c"]) {
+        resultType = WDPropTypeEncodingString;
+    }
+    else {
+        
+        if ([type isEqualToString:@"NSString"]) {
+            resultType = WDPropTypeString;
+        }
+        else if ([type isEqualToString:@"NSMutableArray"]||[type isEqualToString:@"NSArray"]) {   //数组
+            resultType = WDPropTypeArray;
+        }
+        else if ([type isEqualToString:@"NSMutableDictionary"]||[type isEqualToString:@"NSDictionary"]) {   //数组
+            resultType = WDPropTypeDictionary;
+        } else if ([type isEqualToString:@"NSDate"]) {
+            resultType = WDPropTypeDate;
+        } else if ([type isEqualToString:@"NSData"]) {
+            resultType = WDPropTypeData;
+        } else if ([type isEqualToString:@"NSNumber"]) {
+            resultType = WDPropTypeNumber;
+        }
+    }
+    
+    return resultType;
+}
 
 - (NSString *)lowercaseFirstChar:(NSString *)input{
     

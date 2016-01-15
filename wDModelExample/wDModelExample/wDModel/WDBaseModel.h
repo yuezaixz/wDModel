@@ -8,6 +8,18 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_OPTIONS(NSUInteger, WDPropType) {
+    WDPropTypeUnknown = 0, ///< unknown
+    WDPropTypeEncodingNumber = 1, ///< 包括 int,float,bool等所有都归这类了
+    WDPropTypeNumber = 2, ///< NSNumber
+    WDPropTypeString = 3, ///< NSString
+    WDPropTypeDate = 4, ///< NSDate
+    WDPropTypeData = 5, ///< NSData
+    WDPropTypeDictionary = 6, ///< Dictionary
+    WDPropTypeArray = 7, ///< Array
+    WDPropTypeEncodingString = 9, ///< 包括 int,float,bool等所有都归这类了
+};
+
 @protocol WDModel <NSObject>
 
 @optional
@@ -25,11 +37,11 @@
 + (NSArray *)fields;
 /**
  *  返回Model中的字段，但是不需要持久化的属性<br>
- *  注意：该方法功能暂无实现
+ *  注意：与fields不同，这里是属性名
  *
  *  @return 属性名列表，注意是属性名不是数据库中的field名，格式例如：@[@"userId",@"parent"]
  */
-+ (NSArray *)excludedFields;
++ (NSSet *)excludedProps;
 /**
  *  ID字段
  *
