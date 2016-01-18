@@ -97,7 +97,7 @@ NSString *const WDBaseFieldIsLazy = @"lazy";
             if (!value || value == [NSNull null]) {
                 continue;
             }
-            if ([key containsString:@">"] || [key containsString:@"<"]) {
+            if ([key rangeOfString:@">"].length != 0 || [key rangeOfString:@"<"].length != 0) {
                 NSString *realKey = [key stringByReplacingOccurrencesOfString:@">" withString:@""];
                 realKey = [realKey stringByReplacingOccurrencesOfString:@"<" withString:@""];
                 realKey = [realKey stringByReplacingOccurrencesOfString:@"=" withString:@""];
