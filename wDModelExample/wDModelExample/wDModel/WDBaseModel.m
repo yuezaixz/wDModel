@@ -597,13 +597,7 @@ inline static const char * getPropertyType(objc_property_t property){
         SEL setSel = [self creatSetterWithPropertyName:dicKey[i]];
         
         if ([self respondsToSelector:setSel]) {
-            ///2.2 获取字典中key对应的value
-//            NSString  *value = [NSString stringWithFormat:@"%@", data[dicKey[i]]];
-            
-            ///2.3 把值通过setter方法赋值给实体类的属性
-            [self performSelectorOnMainThread:setSel
-                                   withObject:data[dicKey[i]]
-                                waitUntilDone:[NSThread isMainThread]];
+            [self setValue:data[dicKey[i]] forKey:dicKey[i]];
         }
     }
 }
