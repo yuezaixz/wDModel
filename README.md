@@ -1,10 +1,13 @@
 # wDModel
-##介绍
-###封装
+
+## 介绍
+
+### 封装
+
 这是一个对FMDB进行封装的sqlite ORM库，为了和当前应用场景完美替换，对于数据表的CREATE和MIGRATION不进行封装，需要用户用SQL进行『填空』。
 一些方法的封装主要用到的objc的runtime特性。
 
-###功能
+### 功能
 
 主要是对一些经常用到的CRUD方法进行封装，目标就是不失灵活性，又能比较好的做到ORM功能，所以提供了以下封装的方法。
 
@@ -17,11 +20,14 @@
 * changeXxx方法，可以单独保存某个属性的值
 * xxxField方法可以单独读取某个属性的值，可以用于读取设置了lazy的属性或者解析NSData类型属性
 
-###不做的事情
+### 不做的事情
+
 对于数据表的CREATE和MIGRATION不进行封装，需要用户用SQL进行『填空』
 
-##代码示例
-###初始化
+## 代码示例
+
+### 初始化
+
 在项目初始化的位置，对Service的单例进行初始化操作。
 *注意，如果项目已经做了Service层封装，那么只需要将WDBaseModel中用的的WDDBService方法在自己的Service中实现即可，然后调用自己的Service*
 
@@ -31,7 +37,9 @@
     return YES;
 }
 ```
-###表初始化
+
+### 表初始化
+
 在WDDBService中对init和upgrade方法进行填空，填空如下。
 
 ```objc
@@ -83,7 +91,8 @@
 }
 ```
 
-###Model类创建
+### Model类创建
+
 创建自己的Model类，继承自WDBaseModel，必须实现 @selector(tableName)、@selector(fields)、@selector(fieldForId)方法，具体如下。
 
 注意：
@@ -117,10 +126,12 @@
 @end
 ```
 
-###Model类操作
+### Model类操作
+
 然后save、update、fetch、delete调用就好了。
 
-####SAVE
+#### SAVE
+
 ```objc
 //SAVE
 WDUser *user = [[WDUser alloc] init];
@@ -130,7 +141,7 @@ WDUser *user = [[WDUser alloc] init];
     [user save];
 ```
 
-####FETCH
+#### FETCH
 
 查询有3种方式：
 
@@ -149,7 +160,8 @@ WDUser *user = [[WDUser alloc] init];
     WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
 ```
 
-####UPDATE
+#### UPDATE
+
 ```objc
     //update
     WDUser *user2 = (WDUser *)[WDUser fetchOne:@{@"user_id":@1}];
@@ -159,7 +171,8 @@ WDUser *user = [[WDUser alloc] init];
     [user2 update];
 ```
 
-####DELETE
+#### DELETE
+
 提供了3种删除方式：
 
 * 调用实例的delete方法删除当前实例
@@ -186,7 +199,8 @@ WDUser *user = [[WDUser alloc] init];
     NSLog(@"删除数据数量：%ld",beforeDeleteCount-afterDeleteCount);
 ```
 
-####INIT BY JSON
+#### INIT BY JSON
+
 用于从json dict生成数据库对象的实例。或许有人觉得这个功能不应该放数据库对象中，但是暂时不考虑这些，先放这里吧。
 User对象中增加如下方法:
 
@@ -215,7 +229,8 @@ User对象中增加如下方法:
 ```
 
 
-####CHANGE
+#### CHANGE
+
 动态的改变Model的属性，主要应用于Model改变了一个属性又不想整个model去update（封装的Update生成的update sql会update所有属性），那就用这个功能去Update一个特定属性，比如下面例子生成的sql就是 ``` update user set weight=:weight where user_id=:user_id ```
 
 ```objc
@@ -229,7 +244,7 @@ User对象中增加如下方法:
     NSLog(@"parent:%@",[user3 performSelector:@selector(parentField)]);
     NSLog(@"weight:%@",[user3 performSelector:@selector(weightField)]);
 ```
-####LAZY 和 READ
+#### LAZY 和 READ
 
 有的属性数据比较大，不想立马加载出来占用内存，可以像如下代码设置，FETCH的时候不去加载该属性
 ```objc
@@ -247,6 +262,7 @@ User对象中增加如下方法:
 
 
 @end
+
 ```
 这样设置后，FETCH的User对象就没有parent这个对象，如果需要读取的话可以用 xxxField方法，如下：
 
@@ -257,7 +273,7 @@ User对象中增加如下方法:
 
 
 
-##TODO LIST
+## TODO LIST
 
 * get set 方法，现在都用KVC
 * int float等类型的值，现在都只能用NSNumber
